@@ -1,0 +1,106 @@
+import { FC, useEffect, useState } from 'react';
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../../navigation/app/types';
+import { COLORS } from '../../../assets/colors';
+import { FONTS } from '../../../assets/fonts';
+import { HeadingText, TextCustom } from '../../../components/react-native';
+import { ScreenHeader } from '../../../components/screen-header';
+import { OtpInput } from '../../../components/otp-input';
+import { PrimaryButton } from '../../../components/primary-button';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'OtpVerification'>;
+
+const CODE_LENGTH = 4;
+const RESEND_SECONDS = 11;
+
+export const OtpVerificationScreen: FC<Props> = ({ navigation, route }) => {
+  const insets = useSafeAreaInsets();
+  const isEmail = route.params.method === 'email';
+  const [code, setCode] = useState('');
+  const [seconds, setSeconds] = useState(RESEND_SECONDS);
+
+  useEffect(() => {
+    if (seconds <= 0) return;
+    const id = setTimeout(() => setSeconds(s => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [seconds]);
+
+  return (
+    <KeyboardAvoidingView
+      style={[styles.container, { paddingTop: insets.top }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScreenHeader title="OTP Verification" onBack={navigation.goBack} />
+      <View style={styles.content}>
+        <HeadingText style={styles.title}>{isEmail ? 'Verify Your Email' : 'Verify Your Number'}</HeadingText>
+        <TextCustom style={styles.subtitle}>
+          {`A ${CODE_LENGTH}-digit code was sent to your ${isEmail ? 'email' : 'number'}.`}
+        </TextCustom>
+
+        <OtpInput length={CODE_LENGTH} value={code} onChange={setCode} />
+
+        <PrimaryButton
+          title="Verify & Continue"
+          disabled={code.length < CODE_LENGTH}
+          onPress={() => navigation.navigate('ProfileSetup')}
+          style={styles.button}
+        />
+
+        <View style={styles.resendRow}>
+          <TextCustom style={styles.resendText}>Didn't receive the code? </TextCustom>
+          {seconds > 0 ? (
+            <TextCustom style={styles.resendBold}>{`Resend in ${seconds}s`}</TextCustom>
+          ) : (
+            <Pressable onPress={() => setSeconds(RESEND_SECONDS)} hitSlop={8}>
+              <TextCustom style={[styles.resendBold, styles.resendLink]}>Resend</TextCustom>
+            </Pressable>
+          )}
+        </View>
+      </View>
+    </KeyboardAvoidingView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 60,
+  },
+  title: {
+    textAlign: 'center',
+  },
+  subtitle: {
+    marginTop: 8,
+    marginBottom: 28,
+    textAlign: 'center',
+    fontSize: 13,
+    color: COLORS.inkMuted,
+  },
+  button: {
+    marginTop: 28,
+  },
+  resendRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  resendText: {
+    fontSize: 13,
+    color: COLORS.inkMuted,
+  },
+  resendBold: {
+    fontSize: 13,
+    fontFamily: FONTS.semiBold,
+  },
+  resendLink: {
+    color: COLORS.brandDeep,
+  },
+});

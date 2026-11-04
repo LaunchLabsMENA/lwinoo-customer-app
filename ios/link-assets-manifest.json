@@ -1,0 +1,37 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/DMSans-Bold.ttf",
+      "sha1": "2c81ee9f21c6056c145b1f2e23ca0d3248dcdfcb"
+    },
+    {
+      "path": "assets/fonts/DMSans-Medium.ttf",
+      "sha1": "6113bf4825b5d6405e9a270ac0961ec311b7680d"
+    },
+    {
+      "path": "assets/fonts/DMSans-Regular.ttf",
+      "sha1": "f6ccee681a9024065902bc5f3fd91c37e4d21400"
+    },
+    {
+      "path": "assets/fonts/DMSans-SemiBold.ttf",
+      "sha1": "440a8c13665f6a350357d1931981c787204b1ea5"
+    },
+    {
+      "path": "assets/fonts/OFL-DMSans.txt",
+      "sha1": "da67665e95663579cd634c5f1d48147ec4a1a1a0"
+    },
+    {
+      "path": "assets/fonts/OFL-PlayfairDisplay.txt",
+      "sha1": "e997375e22668c444135764f63ddae74fc617985"
+    },
+    {
+      "path": "assets/fonts/PlayfairDisplay-Bold.ttf",
+      "sha1": "cf3d8e39d1a98dce0c46a8c45e8e8344c183bc1a"
+    },
+    {
+      "path": "assets/fonts/PlayfairDisplay-SemiBold.ttf",
+      "sha1": "1defd825e4fc7501fee0bacf97929f9490fc3b5c"
+    }
+  ]
+}

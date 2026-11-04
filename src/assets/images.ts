@@ -1,0 +1,25 @@
+// Placeholder remote images for the static screens. Swap for real assets / API data later.
+const unsplash = (id: string, w = 600) => ({ uri: `https://images.unsplash.com/photo-${id}?w=${w}&q=70&auto=format&fit=crop` });
+
+export const IMAGES = {
+  logo: require('./logo/lwinoo-logo.jpg'),
+  hair: unsplash('1522337360788-8b13dee7a37e'),
+  makeup: unsplash('1487412947147-5cebf100ffc2'),
+  nails: unsplash('1604654894610-df63bc536371'),
+  facial: unsplash('1570172619644-dfd03ed5d881'),
+  massage: unsplash('1544161515-4ab6ce6db874'),
+  spa: unsplash('1540555700478-4be289fbecef'),
+  bridal: unsplash('1519699047748-de8e457a634e'),
+  fashion: unsplash('1594744803329-e58b31de8bf5'),
+  abaya: unsplash('1595476108010-b4d1f102b1b1'),
+  salon: unsplash('1560066984-138dadb4c035'),
+  brushes: unsplash('1516975080664-ed2fc6a32937'),
+  portrait1: unsplash('1531746020798-e6953c6e8e04', 300),
+  portrait2: unsplash('1494790108377-be9c29b29330', 300),
+  portrait3: unsplash('1438761681033-6461ffad8d80', 300),
+  portrait4: unsplash('1524504388940-b1c1722653e1', 300),
+  perfume: unsplash('1541643600914-78b084683601'),
+  glam: unsplash('1515377905703-c4788e51af15'),
+  wellness: unsplash('1600334129128-685c5582fd35'),
+  hairTool: unsplash('1583001931096-959e9a1a6223'),
+};
