@@ -1,19 +1,25 @@
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { COLORS } from '../../assets/colors';
 import { HeadingText, TextCustom } from '../react-native';
+import { useI18n } from '../../i18n';
 
 type Props = {
   title: string;
+  children?: ReactNode;
 };
 
 // Temporary screen body for tabs that haven't been designed yet.
-export const Placeholder: FC<Props> = ({ title }) => (
-  <View style={styles.container}>
-    <HeadingText>{title}</HeadingText>
-    <TextCustom style={styles.text}>Coming soon</TextCustom>
-  </View>
-);
+export const Placeholder: FC<Props> = ({ title, children }) => {
+  const { t } = useI18n();
+  return (
+    <View style={styles.container}>
+      <HeadingText>{title}</HeadingText>
+      <TextCustom style={styles.text}>{t('common.comingSoon')}</TextCustom>
+      {children}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

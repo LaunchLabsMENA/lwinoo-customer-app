@@ -4,17 +4,20 @@ import { COLORS } from '../../assets/colors';
 import { FONTS } from '../../assets/fonts';
 import { TextCustom } from '../react-native';
 import { AppleIcon, GoogleIcon } from '../icons';
+import { useI18n } from '../../i18n';
 
 type Props = {
   onGoogle?: () => void;
   onApple?: () => void;
 };
 
-export const SocialButtons: FC<Props> = ({ onGoogle, onApple }) => (
+export const SocialButtons: FC<Props> = ({ onGoogle, onApple }) => {
+  const { t } = useI18n();
+  return (
   <View>
     <View style={styles.dividerRow}>
       <View style={styles.line} />
-      <TextCustom style={styles.dividerText}>or continue with</TextCustom>
+      <TextCustom style={styles.dividerText}>{t('social.orContinueWith')}</TextCustom>
       <View style={styles.line} />
     </View>
     <View style={styles.row}>
@@ -28,7 +31,8 @@ export const SocialButtons: FC<Props> = ({ onGoogle, onApple }) => (
       </Pressable>
     </View>
   </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   dividerRow: {

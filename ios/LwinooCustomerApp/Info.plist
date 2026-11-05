@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>LwinooCustomerApp</string>
+	<string>Lwinoo</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -24,6 +24,8 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -35,22 +37,29 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Lwinoo needs camera access so you can take photos for your profile and orders.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Lwinoo needs photo library access so you can choose photos for your profile and orders.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Lwinoo needs permission to save photos to your library.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Lwinoo uses your location to show nearby services and set your delivery address.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Lwinoo needs microphone access to record audio when you use voice features.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Lwinoo needs access to your contacts so you can share and invite friends.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Lwinoo uses Face ID to let you sign in securely.</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Lwinoo uses your location to show nearby services and set your delivery address.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Lwinoo needs microphone access to record audio when you use voice features.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Lwinoo needs permission to save photos to your library.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Lwinoo needs photo library access so you can choose photos for your profile and orders.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>DMSans-Regular.ttf</string>
+		<string>DMSans-Medium.ttf</string>
+		<string>DMSans-Bold.ttf</string>
+		<string>PlayfairDisplay-Bold.ttf</string>
+		<string>PlayfairDisplay-SemiBold.ttf</string>
+		<string>DMSans-SemiBold.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -87,14 +96,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>UIAppFonts</key>
-	<array>
-		<string>DMSans-Regular.ttf</string>
-		<string>DMSans-Medium.ttf</string>
-		<string>DMSans-Bold.ttf</string>
-		<string>PlayfairDisplay-Bold.ttf</string>
-		<string>PlayfairDisplay-SemiBold.ttf</string>
-		<string>DMSans-SemiBold.ttf</string>
-	</array>
 </dict>
 </plist>

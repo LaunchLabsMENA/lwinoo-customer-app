@@ -3,6 +3,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { navigationRef } from './src/navigation/services';
 import { AppNavigator } from './src/navigation/app';
 import { COLORS } from './src/assets/colors';
+import { I18nProvider } from './src/i18n';
 
 const navTheme: Theme = {
   ...DefaultTheme,
@@ -18,11 +19,13 @@ const navTheme: Theme = {
 
 function App() {
   return (
-    <SafeAreaProvider>
-      <NavigationContainer ref={navigationRef} theme={navTheme}>
-        <AppNavigator />
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <I18nProvider>
+      <SafeAreaProvider>
+        <NavigationContainer ref={navigationRef} theme={navTheme}>
+          <AppNavigator />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </I18nProvider>
   );
 }
 

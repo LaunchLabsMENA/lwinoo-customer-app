@@ -6,6 +6,7 @@ import { CalendarDays, Heart, House, LucideIcon, SquarePlay, User } from 'lucide
 import { COLORS } from '../../assets/colors';
 import { FONTS } from '../../assets/fonts';
 import { TextCustom } from '../react-native';
+import { useI18n, type TranslationKey } from '../../i18n';
 
 const ICONS: Record<string, LucideIcon> = {
   Home: House,
@@ -18,10 +19,11 @@ const ICONS: Record<string, LucideIcon> = {
 // Floating pill tab bar.
 export const BottomTabBar: FC<BottomTabBarProps> = ({ state, navigation }) => {
   const insets = useSafeAreaInsets();
+  const { t, row } = useI18n();
 
   return (
     <View style={[styles.wrap, { bottom: Math.max(insets.bottom, 12) }]}>
-      <View style={styles.bar}>
+      <View style={[styles.bar, { flexDirection: row }]}>
         {state.routes.map((route, index) => {
           const focused = state.index === index;
           const Icon = ICONS[route.name] ?? House;
@@ -34,7 +36,7 @@ export const BottomTabBar: FC<BottomTabBarProps> = ({ state, navigation }) => {
               <View style={[styles.iconWrap, focused && styles.iconWrapActive]}>
                 <Icon size={20} color={focused ? COLORS.white : COLORS.ink} strokeWidth={1.75} />
               </View>
-              <TextCustom style={[styles.label, focused && styles.labelActive]}>{route.name}</TextCustom>
+              <TextCustom style={[styles.label, focused && styles.labelActive]}>{t(`tabs.${route.name}` as TranslationKey)}</TextCustom>
             </Pressable>
           );
         })}

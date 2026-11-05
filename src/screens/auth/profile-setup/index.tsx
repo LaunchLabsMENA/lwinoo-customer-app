@@ -11,13 +11,15 @@ import { ScreenHeader } from '../../../components/screen-header';
 import { StepProgress } from '../../../components/step-progress';
 import { FormInput, RequiredChip } from '../../../components/form-input';
 import { PrimaryButton } from '../../../components/primary-button';
+import { useI18n, type TranslationKey } from '../../../i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProfileSetup'>;
 
-const TITLES = ['Miss', 'Mrs.', 'Dr.'];
+const TITLES: TranslationKey[] = ['profileSetup.title.miss', 'profileSetup.title.mrs', 'profileSetup.title.dr'];
 
 export const ProfileSetupScreen: FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
+  const { t, row } = useI18n();
   const [name, setName] = useState('Noura Al-Rashidi');
   const [title, setTitle] = useState(TITLES[0]);
   const [dob, setDob] = useState('');
@@ -27,11 +29,11 @@ export const ProfileSetupScreen: FC<Props> = ({ navigation }) => {
       style={[styles.container, { paddingTop: insets.top }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScreenHeader title="Profile" onBack={navigation.goBack} />
-      <StepProgress step={2} total={4} label="Location" />
+      <ScreenHeader title={t('profileSetup.header')} onBack={navigation.goBack} />
+      <StepProgress step={2} total={4} label={t('step.location')} />
 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <HeadingText style={styles.heading}>Setup your profile</HeadingText>
+        <HeadingText style={styles.heading}>{t('profileSetup.heading')}</HeadingText>
 
         <View style={styles.photoWrap}>
           <Pressable style={styles.photo}>
@@ -41,27 +43,28 @@ export const ProfileSetupScreen: FC<Props> = ({ navigation }) => {
             </View>
           </Pressable>
           <TextCustom style={styles.photoText}>
-            Add a profile photo <TextCustom style={styles.optional}>(Optional)</TextCustom>
+            {`${t('profileSetup.addPhoto')} `}
+            <TextCustom style={styles.optional}>{t('profileSetup.optional')}</TextCustom>
           </TextCustom>
         </View>
 
         <FormInput
-          label="Full Name"
+          label={t('profileSetup.fullName')}
           uppercaseLabel
           labelRight={<RequiredChip />}
           value={name}
           onChangeText={setName}
-          placeholder="Your full name"
+          placeholder={t('profileSetup.namePlaceholder')}
           left={<User size={18} color={COLORS.brand} />}
         />
 
-        <TextCustom style={styles.sectionLabel}>Preferred Title</TextCustom>
-        <View style={styles.titles}>
-          {TITLES.map(t => {
-            const active = t === title;
+        <TextCustom style={styles.sectionLabel}>{t('profileSetup.preferredTitle')}</TextCustom>
+        <View style={[styles.titles, { flexDirection: row }]}>
+          {TITLES.map(key => {
+            const active = key === title;
             return (
-              <Pressable key={t} onPress={() => setTitle(t)} style={[styles.titleChip, active && styles.titleChipActive]}>
-                <TextCustom style={[styles.titleText, active && styles.titleTextActive]}>{t}</TextCustom>
+              <Pressable key={key} onPress={() => setTitle(key)} style={[styles.titleChip, active && styles.titleChipActive]}>
+                <TextCustom style={[styles.titleText, active && styles.titleTextActive]}>{t(key)}</TextCustom>
               </Pressable>
             );
           })}
@@ -69,36 +72,34 @@ export const ProfileSetupScreen: FC<Props> = ({ navigation }) => {
 
         <FormInput
           containerStyle={styles.dob}
-          label="Date of Birth"
+          label={t('profileSetup.dob')}
           uppercaseLabel
           labelRight={
-            <View style={styles.vip}>
+            <View style={[styles.vip, { flexDirection: row }]}>
               <Star size={11} color={COLORS.brandDeep} fill={COLORS.brandDeep} />
-              <TextCustom style={styles.vipText}>VIP Perk</TextCustom>
+              <TextCustom style={styles.vipText}>{t('profileSetup.vipPerk')}</TextCustom>
             </View>
           }
           value={dob}
           onChangeText={setDob}
-          placeholder="DD / MM / YYYY (Optional)"
+          placeholder={t('profileSetup.dobPlaceholder')}
           keyboardType="number-pad"
           left={<CalendarDays size={18} color={COLORS.brand} />}
         />
 
-        <View style={styles.perk}>
+        <View style={[styles.perk, { flexDirection: row }]}>
           <Sparkles size={14} color={COLORS.brandDeep} />
-          <TextCustom style={styles.perkText}>
-            Add your birthdate to unlock an exclusive complimentary birthday styling package every year.
-          </TextCustom>
+          <TextCustom style={styles.perkText}>{t('profileSetup.birthdayPerk')}</TextCustom>
         </View>
 
-        <View style={styles.note}>
+        <View style={[styles.note, { flexDirection: row }]}>
           <Info size={13} color={COLORS.brandDeep} />
-          <TextCustom style={styles.noteText}>Your profile remains confidential for private concierge bookings.</TextCustom>
+          <TextCustom style={styles.noteText}>{t('profileSetup.confidential')}</TextCustom>
         </View>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
-        <PrimaryButton title="Continue" disabled={!name.trim()} onPress={() => navigation.navigate('MapPin')} />
+        <PrimaryButton title={t('common.continue')} disabled={!name.trim()} onPress={() => navigation.navigate('MapPin')} />
       </View>
     </KeyboardAvoidingView>
   );

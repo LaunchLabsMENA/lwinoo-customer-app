@@ -2,6 +2,7 @@ import { StyleSheet, Pressable, View } from 'react-native';
 import { COLORS } from '../../assets/colors';
 import { FONTS } from '../../assets/fonts';
 import { TextCustom } from '../react-native';
+import { useI18n } from '../../i18n';
 
 type Props<T extends string> = {
   options: { key: T; label: string }[];
@@ -10,8 +11,9 @@ type Props<T extends string> = {
 };
 
 export function SegmentedTabs<T extends string>({ options, value, onChange }: Props<T>) {
+  const { row } = useI18n();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { flexDirection: row }]}>
       {options.map(o => {
         const active = o.key === value;
         return (

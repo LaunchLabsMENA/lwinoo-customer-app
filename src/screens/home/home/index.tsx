@@ -12,13 +12,14 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Bell, ChevronDown, ChevronRight, MapPin, Search, SlidersHorizontal, Sparkles, Star } from 'lucide-react-native';
+import { Bell, ChevronDown, ChevronLeft, ChevronRight, MapPin, Search, SlidersHorizontal, Sparkles, Star } from 'lucide-react-native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { MainTabParamList } from '../../../navigation/app/types';
 import { COLORS } from '../../../assets/colors';
 import { FONTS } from '../../../assets/fonts';
 import { IMAGES } from '../../../assets/images';
-import { HeadingText, TextCustom } from '../../../components/react-native';
+import { HeadingText, TextCustom, useLocalizedTextStyle } from '../../../components/react-native';
+import { useI18n } from '../../../i18n';
 import { BrandGradient } from '../../../components/brand-gradient';
 import { HScroll, Price, SectionHeader, ServiceCard, SmallButton } from '../components';
 import {
@@ -40,6 +41,10 @@ export const HomeScreen: FC<Props> = () => {
   const { width } = useWindowDimensions();
   const bannerWidth = width - 40;
   const [bannerIndex, setBannerIndex] = useState(0);
+  const { t, isRTL, row } = useI18n();
+  const searchInputStyle = useLocalizedTextStyle(styles.searchInput);
+  const StripChevron = isRTL ? ChevronLeft : ChevronRight;
+  const rowDir = { flexDirection: row };
 
   const onBannerScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) =>
     setBannerIndex(Math.round(e.nativeEvent.contentOffset.x / (bannerWidth + 12)));
@@ -56,16 +61,16 @@ export const HomeScreen: FC<Props> = () => {
         </View>
 
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, rowDir]}>
           <Image source={IMAGES.logo} style={styles.avatar} />
           <View style={styles.flex}>
-            <View style={styles.row}>
-              <TextCustom style={styles.greeting}>Hala, Sara </TextCustom>
+            <View style={[styles.row, rowDir]}>
+              <TextCustom style={styles.greeting}>{t('home.greeting', { name: 'Sara' })}</TextCustom>
               <Sparkles size={14} color={COLORS.brandDeep} />
             </View>
-            <View style={styles.row}>
+            <View style={[styles.row, rowDir]}>
               <MapPin size={11} color={COLORS.inkMuted} />
-              <TextCustom style={styles.location}> Makkah (Al Naseem) </TextCustom>
+              <TextCustom style={styles.location}>{` ${t('home.location')} `}</TextCustom>
               <ChevronDown size={12} color={COLORS.inkMuted} />
             </View>
           </View>
@@ -78,17 +83,17 @@ export const HomeScreen: FC<Props> = () => {
         </View>
 
         {/* Register strip */}
-        <View style={styles.strip}>
+        <View style={[styles.strip, rowDir]}>
           <Sparkles size={13} color={COLORS.white} />
-          <TextCustom style={styles.stripText}>Register your business & reach 13M+ users</TextCustom>
+          <TextCustom style={styles.stripText}>{t('home.register')}</TextCustom>
           <Sparkles size={13} color={COLORS.white} />
-          <ChevronRight size={16} color={COLORS.white} style={styles.stripChevron} />
+          <StripChevron size={16} color={COLORS.white} style={isRTL ? styles.stripChevronRtl : styles.stripChevron} />
         </View>
 
         {/* Search */}
-        <View style={styles.search}>
+        <View style={[styles.search, rowDir]}>
           <Search size={18} color={COLORS.inkMuted} />
-          <TextInput placeholder="Search stylists, salons..." placeholderTextColor={COLORS.placeholder} style={styles.searchInput} />
+          <TextInput placeholder={t('home.search')} placeholderTextColor={COLORS.placeholder} style={searchInputStyle} />
           <SlidersHorizontal size={18} color={COLORS.ink} />
         </View>
 
@@ -105,10 +110,10 @@ export const HomeScreen: FC<Props> = () => {
             <ImageBackground key={b.id} source={b.image} style={[styles.banner, { width: bannerWidth }]} imageStyle={styles.bannerImage}>
               <View style={styles.bannerOverlay} />
               <View style={styles.bannerTag}>
-                <TextCustom style={styles.bannerTagText}>{b.tag}</TextCustom>
+                <TextCustom style={styles.bannerTagText}>{t(b.tag)}</TextCustom>
               </View>
-              <HeadingText style={styles.bannerTitle}>{b.title}</HeadingText>
-              <TextCustom style={styles.bannerSub}>{b.subtitle}</TextCustom>
+              <HeadingText style={styles.bannerTitle}>{t(b.title)}</HeadingText>
+              <TextCustom style={styles.bannerSub}>{t(b.subtitle)}</TextCustom>
             </ImageBackground>
           ))}
         </ScrollView>
@@ -123,83 +128,83 @@ export const HomeScreen: FC<Props> = () => {
           {CATEGORIES.map(c => (
             <View key={c.id} style={styles.category}>
               <Image source={c.image} style={styles.categoryImage} />
-              <TextCustom style={styles.categoryLabel}>{c.label}</TextCustom>
+              <TextCustom style={styles.categoryLabel}>{t(c.label)}</TextCustom>
             </View>
           ))}
         </HScroll>
 
-        <SectionHeader title="Immediate Availability" action="See all" />
+        <SectionHeader title={t('home.section.immediate')} action={t('common.seeAll')} />
         <HScroll>
           {AVAILABLE_NOW.map(a => (
             <View key={a.id} style={styles.availCard}>
               <View>
                 <Image source={a.image} style={styles.availImage} />
-                <View style={styles.waitBadge}>
+                <View style={[styles.waitBadge, rowDir]}>
                   <View style={styles.greenDot} />
-                  <TextCustom style={styles.waitText}>{a.badge}</TextCustom>
+                  <TextCustom style={styles.waitText}>{a.waitMinutes === null ? t('home.availableNow') : t('home.wait', { minutes: a.waitMinutes })}</TextCustom>
                 </View>
               </View>
               <View style={styles.availBody}>
                 <TextCustom style={styles.cardTitle}>{a.name}</TextCustom>
-                <TextCustom style={styles.cardSub}>{a.subtitle}</TextCustom>
-                <View style={styles.availFooter}>
+                <TextCustom style={styles.cardSub}>{t(a.subtitle)}</TextCustom>
+                <View style={[styles.availFooter, rowDir]}>
                   <View>
-                    <TextCustom style={styles.startingFrom}>STARTING FROM</TextCustom>
+                    <TextCustom style={styles.startingFrom}>{t('home.startingFrom')}</TextCustom>
                     <Price amount={a.price} size={16} />
                   </View>
-                  <SmallButton title="Book" />
+                  <SmallButton title={t('common.book')} />
                 </View>
               </View>
             </View>
           ))}
         </HScroll>
 
-        <SectionHeader title="Spotlight Deals" action="View All" />
+        <SectionHeader title={t('home.section.spotlight')} action={t('common.viewAll')} />
         <HScroll>
           {SPOTLIGHT_DEALS.map(s => (
             <ServiceCard key={s.id} {...s} />
           ))}
         </HScroll>
 
-        <SectionHeader title="Master Stylists" action="View All" />
+        <SectionHeader title={t('home.section.stylists')} action={t('common.viewAll')} />
         <View style={styles.stylists}>
           {MASTER_STYLISTS.map(m => (
-            <View key={m.id} style={styles.stylist}>
+            <View key={m.id} style={[styles.stylist, rowDir]}>
               <Image source={m.image} style={styles.stylistImage} />
               <View style={styles.flex}>
-                <View style={styles.row}>
+                <View style={[styles.row, rowDir]}>
                   <TextCustom style={styles.cardTitle}>{m.name}</TextCustom>
                   <View style={styles.stylistBadge}>
-                    <TextCustom style={styles.stylistBadgeText}>{m.badge}</TextCustom>
+                    <TextCustom style={styles.stylistBadgeText}>{t(m.badge)}</TextCustom>
                   </View>
                 </View>
-                <TextCustom style={styles.cardSub}>{m.subtitle}</TextCustom>
-                <View style={[styles.row, styles.stylistMeta]}>
+                <TextCustom style={styles.cardSub}>{t(m.subtitle)}</TextCustom>
+                <View style={[styles.row, styles.stylistMeta, rowDir]}>
                   <Star size={11} color="#F5B300" fill="#F5B300" />
-                  <TextCustom style={styles.metaText}>{` ${m.rating}  •  from ${m.from} SAR`}</TextCustom>
+                  <TextCustom style={styles.metaText}>{` ${t('home.stylist.meta', { rating: m.rating, price: m.from })}`}</TextCustom>
                 </View>
               </View>
-              <SmallButton title="Book" />
+              <SmallButton title={t('common.book')} />
             </View>
           ))}
         </View>
 
         {/* Dyson promo */}
-        <View style={styles.promo}>
+        <View style={[styles.promo, rowDir]}>
           <View style={styles.promoBody}>
-            <TextCustom style={styles.promoEyebrow}>LWINOO FAV</TextCustom>
+            <TextCustom style={styles.promoEyebrow}>{t('home.promo.fav')}</TextCustom>
             <HeadingText style={styles.promoTitle}>Dyson Airwrap</HeadingText>
             <View style={styles.promoChip}>
-              <TextCustom style={styles.promoChipText}>UPTO 50% OFF</TextCustom>
+              <TextCustom style={styles.promoChipText}>{t('home.promo.upTo')}</TextCustom>
             </View>
             <View style={styles.promoButton}>
-              <TextCustom style={styles.promoButtonText}>Get Yours</TextCustom>
+              <TextCustom style={styles.promoButtonText}>{t('home.promo.getYours')}</TextCustom>
             </View>
           </View>
           <Image source={IMAGES.hairTool} style={styles.promoImage} />
         </View>
 
-        <SectionHeader title="Wellness and Spa" action="View All" />
+        <SectionHeader title={t('home.section.wellness')} action={t('common.viewAll')} />
         <HScroll>
           {WELLNESS.map(w => (
             <ServiceCard key={w.id} {...w} />
@@ -209,41 +214,41 @@ export const HomeScreen: FC<Props> = () => {
         {/* Oud promo */}
         <ImageBackground source={IMAGES.perfume} style={styles.oud} imageStyle={styles.oudImage}>
           <View style={styles.oudOverlay} />
-          <TextCustom style={[styles.promoEyebrow, styles.light]}>LWINOO FAV</TextCustom>
-          <HeadingText style={[styles.promoTitle, styles.light]}>Oud Scent</HeadingText>
+          <TextCustom style={[styles.promoEyebrow, styles.light]}>{t('home.promo.fav')}</TextCustom>
+          <HeadingText style={[styles.promoTitle, styles.light]}>{t('home.oud.title')}</HeadingText>
           <View style={styles.oudButton}>
-            <TextCustom style={styles.oudButtonText}>Get in SAR 180</TextCustom>
+            <TextCustom style={styles.oudButtonText}>{t('home.oud.cta', { price: 180 })}</TextCustom>
           </View>
         </ImageBackground>
 
-        <SectionHeader title="Most Booked Services" />
+        <SectionHeader title={t('home.section.mostBooked')} />
         <HScroll>
           {MOST_BOOKED.map(b => (
             <View key={b.id} style={styles.brandTile}>
               <TextCustom style={styles.brandName}>{b.name}</TextCustom>
-              <TextCustom style={styles.brandTagline}>{b.tagline}</TextCustom>
+              <TextCustom style={styles.brandTagline}>{t(b.tagline)}</TextCustom>
             </View>
           ))}
         </HScroll>
 
-        <SectionHeader title="Makeup Artists" />
+        <SectionHeader title={t('home.section.makeupArtists')} />
         <HScroll>
           {MAKEUP_ARTISTS.map(a => (
             <View key={a.id} style={styles.artist}>
               <Image source={a.image} style={styles.artistImage} />
               <TextCustom style={styles.artistName}>{a.name}</TextCustom>
-              <TextCustom style={styles.artistRole}>{a.role}</TextCustom>
+              <TextCustom style={styles.artistRole}>{t(a.role)}</TextCustom>
             </View>
           ))}
         </HScroll>
 
-        <SectionHeader title="Offers For You" />
+        <SectionHeader title={t('home.section.offers')} />
         <HScroll>
           {OFFERS.map(o => (
             <View key={o.id} style={styles.offer}>
               <TextCustom style={styles.offerBrand}>{o.brand}</TextCustom>
-              <TextCustom style={styles.offerTitle}>{o.title}</TextCustom>
-              <TextCustom style={styles.offerCode}>{`Code: ${o.code}`}</TextCustom>
+              <TextCustom style={styles.offerTitle}>{t('home.offer.extra', { percent: o.percent })}</TextCustom>
+              <TextCustom style={styles.offerCode}>{t('home.offer.code', { code: o.code })}</TextCustom>
             </View>
           ))}
         </HScroll>
@@ -336,6 +341,10 @@ const styles = StyleSheet.create({
   stripChevron: {
     position: 'absolute',
     right: 10,
+  },
+  stripChevronRtl: {
+    position: 'absolute',
+    left: 10,
   },
   search: {
     flexDirection: 'row',
@@ -504,7 +513,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.brandSoft,
   },
   stylistBadge: {
-    marginLeft: 6,
+    marginHorizontal: 6,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,

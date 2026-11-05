@@ -9,11 +9,13 @@ import { FONTS } from '../../../assets/fonts';
 import { HeadingText, TextCustom } from '../../../components/react-native';
 import { BrandGradient } from '../../../components/brand-gradient';
 import { PrimaryButton } from '../../../components/primary-button';
+import { useI18n } from '../../../i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Welcome'>;
 
 export const WelcomeScreen: FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
+  const { t, row } = useI18n();
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 24 }]}>
@@ -25,36 +27,34 @@ export const WelcomeScreen: FC<Props> = ({ navigation }) => {
         <View style={styles.checkCircle}>
           <Check size={56} color={COLORS.white} strokeWidth={3} />
         </View>
-        <HeadingText style={styles.title}>Welcome, Sara!</HeadingText>
-        <TextCustom style={styles.body}>
-          Your bespoke beauty portal is activated. Indulge in private home treatments and Riyadh's elite salons.
-        </TextCustom>
+        <HeadingText style={styles.title}>{t('welcome.title', { name: 'Sara' })}</HeadingText>
+        <TextCustom style={styles.body}>{t('welcome.body')}</TextCustom>
       </View>
 
       <View style={styles.card}>
-        <View style={styles.cardHeader}>
+        <View style={[styles.cardHeader, { flexDirection: row }]}>
           <View>
             <TextCustom style={styles.prive}>LWINOO PRIVÉ</TextCustom>
             <HeadingText style={styles.member}>Sara Al-Otaibi</HeadingText>
           </View>
           <View style={styles.tier}>
-            <TextCustom style={styles.tierText}>Founding Tier</TextCustom>
+            <TextCustom style={styles.tierText}>{t('welcome.tier')}</TextCustom>
           </View>
         </View>
-        <View style={styles.credit}>
+        <View style={[styles.credit, { flexDirection: row }]}>
           <Gift size={20} color={COLORS.brandDeep} />
           <View style={styles.creditBody}>
-            <TextCustom style={styles.creditTitle}>SAR 100 Welcome Credit</TextCustom>
-            <TextCustom style={styles.creditSub}>Applied to your digital wallet</TextCustom>
+            <TextCustom style={styles.creditTitle}>{t('welcome.credit', { amount: 100 })}</TextCustom>
+            <TextCustom style={styles.creditSub}>{t('welcome.creditSub')}</TextCustom>
           </View>
           <View style={styles.active}>
-            <TextCustom style={styles.activeText}>Active</TextCustom>
+            <TextCustom style={styles.activeText}>{t('welcome.active')}</TextCustom>
           </View>
         </View>
       </View>
 
       <PrimaryButton
-        title="Explore LWINOO"
+        title={t('welcome.explore')}
         style={styles.button}
         onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Main' }] })}
       />

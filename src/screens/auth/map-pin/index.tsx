@@ -7,7 +7,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../../navigation/app/types';
 import { COLORS } from '../../../assets/colors';
 import { FONTS } from '../../../assets/fonts';
-import { TextCustom } from '../../../components/react-native';
+import { TextCustom, useLocalizedTextStyle } from '../../../components/react-native';
+import { useI18n } from '../../../i18n';
 import { PrimaryButton } from '../../../components/primary-button';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MapPin'>;
@@ -22,6 +23,8 @@ const INITIAL_REGION = {
 
 export const MapPinScreen: FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
+  const { t, row } = useI18n();
+  const searchInputStyle = useLocalizedTextStyle(styles.searchInput);
 
   return (
     <View style={styles.container}>
@@ -32,20 +35,20 @@ export const MapPinScreen: FC<Props> = ({ navigation }) => {
         <MapPin size={44} color={COLORS.white} fill={COLORS.mapPin} strokeWidth={1.5} />
       </View>
 
-      <View style={[styles.search, { top: insets.top + 12 }]}>
+      <View style={[styles.search, { top: insets.top + 12, flexDirection: row }]}>
         <Search size={18} color={COLORS.inkMuted} />
         <TextInput
-          placeholder="Search for your address"
+          placeholder={t('mapPin.search')}
           placeholderTextColor={COLORS.placeholder}
-          style={styles.searchInput}
+          style={searchInputStyle}
         />
       </View>
 
       <View style={[styles.sheet, { paddingBottom: insets.bottom + 12 }]}>
         <View style={styles.handle} />
-        <TextCustom style={styles.sheetTitle}>Current Location</TextCustom>
+        <TextCustom style={styles.sheetTitle}>{t('mapPin.currentLocation')}</TextCustom>
         <TextCustom style={styles.address}>Hijaz, GPRR+GC Hadiyah Saudi Arabia</TextCustom>
-        <PrimaryButton title="Continue" onPress={() => navigation.navigate('Preferences')} />
+        <PrimaryButton title={t('common.continue')} onPress={() => navigation.navigate('Preferences')} />
       </View>
     </View>
   );

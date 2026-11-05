@@ -1,73 +1,83 @@
 import { IMAGES } from '../../../assets/images';
+import type { TranslationKey } from '../../../i18n';
 
-export const BANNERS = [
-  {
-    id: 'b1',
-    tag: 'PRIVATE CONCIERGE',
-    title: 'Ramadan and Eid\nCouture Glamour',
-    subtitle: 'Book exceptional home artists for\nyour festive celebrations',
-    image: IMAGES.glam,
-  },
-  {
-    id: 'b2',
-    tag: 'BRIDAL SUITE',
-    title: 'Your Wedding,\nPerfected',
-    subtitle: 'Bridal makeup, hair & henna\nin one booking',
-    image: IMAGES.bridal,
-  },
-  {
-    id: 'b3',
-    tag: 'WELLNESS',
-    title: 'Spa Rituals\nAt Home',
-    subtitle: 'Certified therapists at\nyour doorstep',
-    image: IMAGES.spa,
-  },
+// Text fields are translation keys; names of businesses and people stay as-is.
+
+export const BANNERS: { id: string; tag: TranslationKey; title: TranslationKey; subtitle: TranslationKey; image: { uri: string } }[] = [
+  { id: 'b1', tag: 'home.banner1.tag', title: 'home.banner1.title', subtitle: 'home.banner1.subtitle', image: IMAGES.glam },
+  { id: 'b2', tag: 'home.banner2.tag', title: 'home.banner2.title', subtitle: 'home.banner2.subtitle', image: IMAGES.bridal },
+  { id: 'b3', tag: 'home.banner3.tag', title: 'home.banner3.title', subtitle: 'home.banner3.subtitle', image: IMAGES.spa },
 ];
 
-export const CATEGORIES = [
-  { id: 'c1', label: 'Hair Extension', image: IMAGES.hair },
-  { id: 'c2', label: 'Makeup Artists', image: IMAGES.makeup },
-  { id: 'c3', label: 'Occasion', image: IMAGES.fashion },
-  { id: 'c4', label: 'Nails', image: IMAGES.nails },
+export const CATEGORIES: { id: string; label: TranslationKey; image: { uri: string } }[] = [
+  { id: 'c1', label: 'home.category.hairExtension', image: IMAGES.hair },
+  { id: 'c2', label: 'home.category.makeupArtists', image: IMAGES.makeup },
+  { id: 'c3', label: 'home.category.occasion', image: IMAGES.fashion },
+  { id: 'c4', label: 'home.category.nails', image: IMAGES.nails },
 ];
 
-export const AVAILABLE_NOW = [
-  { id: 'a1', badge: 'Wait: 15 min', name: 'Salon Nour Privé', subtitle: 'Hair Haute Couture & Rituals', price: 180, image: IMAGES.salon },
-  { id: 'a2', badge: 'Available Now', name: 'Reem Bridal Studio', subtitle: 'Bridal Makeup & Henna', price: 220, image: IMAGES.bridal },
-  { id: 'a3', badge: 'Wait: 30 min', name: 'Lumière Spa', subtitle: 'Facials & Glow Rituals', price: 160, image: IMAGES.facial },
+// waitMinutes: null means available now.
+export const AVAILABLE_NOW: {
+  id: string;
+  waitMinutes: number | null;
+  name: string;
+  subtitle: TranslationKey;
+  price: number;
+  image: { uri: string };
+}[] = [
+  { id: 'a1', waitMinutes: 15, name: 'Salon Nour Privé', subtitle: 'home.avail.hairCouture', price: 180, image: IMAGES.salon },
+  { id: 'a2', waitMinutes: null, name: 'Reem Bridal Studio', subtitle: 'home.avail.bridalHenna', price: 220, image: IMAGES.bridal },
+  { id: 'a3', waitMinutes: 30, name: 'Lumière Spa', subtitle: 'home.avail.facials', price: 160, image: IMAGES.facial },
 ];
 
-export const SPOTLIGHT_DEALS = [
-  { id: 's1', title: 'Wedding Gown', subtitle: 'Bridal Haute Couture & Rituals', price: 180, rating: '5.0 (248)', image: IMAGES.bridal },
-  { id: 's2', title: 'Hejazi', subtitle: 'Traditional Dresses with Rituals', price: 180, rating: '5.0 (248)', image: IMAGES.fashion },
-  { id: 's3', title: 'Evening Glam', subtitle: 'Soft Glam & Lashes', price: 150, rating: '4.9 (190)', image: IMAGES.makeup },
+export type ServiceItem = {
+  id: string;
+  title: TranslationKey;
+  subtitle: TranslationKey;
+  price: number;
+  rating: string;
+  image: { uri: string };
+};
+
+export const SPOTLIGHT_DEALS: ServiceItem[] = [
+  { id: 's1', title: 'home.deal.weddingGown', subtitle: 'home.deal.weddingGownSub', price: 180, rating: '5.0 (248)', image: IMAGES.bridal },
+  { id: 's2', title: 'home.deal.hejazi', subtitle: 'home.deal.hejaziSub', price: 180, rating: '5.0 (248)', image: IMAGES.fashion },
+  { id: 's3', title: 'home.deal.eveningGlam', subtitle: 'home.deal.eveningGlamSub', price: 150, rating: '4.9 (190)', image: IMAGES.makeup },
 ];
 
-export const MASTER_STYLISTS = [
-  { id: 'm1', name: 'Mona Artistry', badge: 'VIP Pro', subtitle: 'Editorial & Royal Makeup', rating: '5.0', from: 450, image: IMAGES.portrait1 },
-  { id: 'm2', name: 'Sanah Lena', badge: 'Organic Spa', subtitle: 'Skin Therapy & Facials', rating: '5.0', from: 320, image: IMAGES.portrait2 },
+export const MASTER_STYLISTS: {
+  id: string;
+  name: string;
+  badge: TranslationKey;
+  subtitle: TranslationKey;
+  rating: string;
+  from: number;
+  image: { uri: string };
+}[] = [
+  { id: 'm1', name: 'Mona Artistry', badge: 'home.stylist.vipPro', subtitle: 'home.stylist.editorial', rating: '5.0', from: 450, image: IMAGES.portrait1 },
+  { id: 'm2', name: 'Sanah Lena', badge: 'home.stylist.organicSpa', subtitle: 'home.stylist.skinTherapy', rating: '5.0', from: 320, image: IMAGES.portrait2 },
 ];
 
-export const WELLNESS = [
-  { id: 'w1', title: 'Spa & Massage', subtitle: 'Relaxation with deep tissue massage', price: 180, rating: '5.0 (248)', image: IMAGES.massage },
-  { id: 'w2', title: 'Swedish Massage', subtitle: 'Relaxation with deep tissue massage', price: 180, rating: '5.0 (248)', image: IMAGES.wellness },
-  { id: 'w3', title: 'Hot Stone', subtitle: 'Warm basalt stone therapy', price: 210, rating: '4.9 (132)', image: IMAGES.spa },
+export const WELLNESS: ServiceItem[] = [
+  { id: 'w1', title: 'home.wellness.spaMassage', subtitle: 'home.wellness.deepTissue', price: 180, rating: '5.0 (248)', image: IMAGES.massage },
+  { id: 'w2', title: 'home.wellness.swedish', subtitle: 'home.wellness.deepTissue', price: 180, rating: '5.0 (248)', image: IMAGES.wellness },
+  { id: 'w3', title: 'home.wellness.hotStone', subtitle: 'home.wellness.hotStoneSub', price: 210, rating: '4.9 (132)', image: IMAGES.spa },
 ];
 
-export const MOST_BOOKED = [
-  { id: 'mb1', name: 'OMBRE', tagline: 'beauty salon' },
-  { id: 'mb2', name: 'nailed', tagline: 'beauty salon' },
-  { id: 'mb3', name: 'Dahab', tagline: 'spa & wellness' },
+export const MOST_BOOKED: { id: string; name: string; tagline: TranslationKey }[] = [
+  { id: 'mb1', name: 'OMBRE', tagline: 'home.brand.beautySalon' },
+  { id: 'mb2', name: 'nailed', tagline: 'home.brand.beautySalon' },
+  { id: 'mb3', name: 'Dahab', tagline: 'home.brand.spaWellness' },
 ];
 
-export const MAKEUP_ARTISTS = [
-  { id: 'ma1', name: 'Namia Ijaz', role: 'Hair Stylist', image: IMAGES.portrait3 },
-  { id: 'ma2', name: 'Esra Al Sheikh', role: 'Makeup Artist', image: IMAGES.portrait4 },
-  { id: 'ma3', name: 'Sadia Tariq', role: 'Makeup Artist', image: IMAGES.portrait2 },
+export const MAKEUP_ARTISTS: { id: string; name: string; role: TranslationKey; image: { uri: string } }[] = [
+  { id: 'ma1', name: 'Namia Ijaz', role: 'home.role.hairStylist', image: IMAGES.portrait3 },
+  { id: 'ma2', name: 'Esra Al Sheikh', role: 'home.role.makeupArtist', image: IMAGES.portrait4 },
+  { id: 'ma3', name: 'Sadia Tariq', role: 'home.role.makeupArtist', image: IMAGES.portrait2 },
 ];
 
 export const OFFERS = [
-  { id: 'o1', brand: 'LWINOO', title: 'Extra 10%', code: 'B612' },
-  { id: 'o2', brand: 'tamara', title: 'Extra 10%', code: 'B612' },
-  { id: 'o3', brand: 'tabby', title: 'Extra 15%', code: 'GLOW15' },
+  { id: 'o1', brand: 'LWINOO', percent: 10, code: 'B612' },
+  { id: 'o2', brand: 'tamara', percent: 10, code: 'B612' },
+  { id: 'o3', brand: 'tabby', percent: 15, code: 'GLOW15' },
 ];

@@ -10,6 +10,7 @@ import { HeadingText, TextCustom } from '../../../components/react-native';
 import { ScreenHeader } from '../../../components/screen-header';
 import { StepProgress } from '../../../components/step-progress';
 import { PrimaryButton } from '../../../components/primary-button';
+import { useI18n } from '../../../i18n';
 import { CATEGORIES, PreferenceCategory } from './data';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Preferences'>;
@@ -18,6 +19,7 @@ const Separator = () => <View style={styles.separator} />;
 
 export const PreferencesScreen: FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
+  const { t, row } = useI18n();
   const [selected, setSelected] = useState<string[]>(['hair', 'makeup', 'nails']);
 
   const toggle = (id: string) =>
@@ -26,22 +28,22 @@ export const PreferencesScreen: FC<Props> = ({ navigation }) => {
   const renderItem = ({ item }: { item: PreferenceCategory }) => {
     const active = selected.includes(item.id);
     return (
-      <Pressable onPress={() => toggle(item.id)} style={[styles.card, active && styles.cardActive]}>
+      <Pressable onPress={() => toggle(item.id)} style={[styles.card, { flexDirection: row }, active && styles.cardActive]}>
         <Image source={item.image} style={styles.image} />
         <View style={styles.body}>
-          <View style={styles.titleRow}>
-            <TextCustom style={styles.title}>{item.title}</TextCustom>
+          <View style={[styles.titleRow, { flexDirection: row }]}>
+            <TextCustom style={styles.title}>{t(item.title)}</TextCustom>
             {item.topPick ? (
               <View style={styles.topPick}>
-                <TextCustom style={styles.topPickText}>Top Pick</TextCustom>
+                <TextCustom style={styles.topPickText}>{t('preferences.topPick')}</TextCustom>
               </View>
             ) : null}
           </View>
-          <TextCustom style={styles.subtitle}>{item.subtitle}</TextCustom>
-          <View style={styles.tags}>
-            {item.tags.map(t => (
-              <View key={t} style={styles.tag}>
-                <TextCustom style={styles.tagText}>{t}</TextCustom>
+          <TextCustom style={styles.subtitle}>{t(item.subtitle)}</TextCustom>
+          <View style={[styles.tags, { flexDirection: row }]}>
+            {item.tags.map(tag => (
+              <View key={tag} style={styles.tag}>
+                <TextCustom style={styles.tagText}>{t(tag)}</TextCustom>
               </View>
             ))}
           </View>
@@ -55,30 +57,30 @@ export const PreferencesScreen: FC<Props> = ({ navigation }) => {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <ScreenHeader title="Preference" onBack={navigation.goBack} />
-      <StepProgress step={4} total={4} label="Location" />
+      <ScreenHeader title={t('preferences.header')} onBack={navigation.goBack} />
+      <StepProgress step={4} total={4} label={t('step.location')} />
 
       <FlatList
         data={CATEGORIES}
         keyExtractor={c => c.id}
         renderItem={renderItem}
-        ListHeaderComponent={<HeadingText style={styles.heading}>What are you into?</HeadingText>}
+        ListHeaderComponent={<HeadingText style={styles.heading}>{t('preferences.heading')}</HeadingText>}
         contentContainerStyle={styles.list}
         ItemSeparatorComponent={Separator}
       />
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
-        <View style={styles.summary}>
+        <View style={[styles.summary, { flexDirection: row }]}>
           <View style={styles.dot} />
           <TextCustom style={styles.summaryText}>
-            {`${selected.length} ${selected.length === 1 ? 'category' : 'categories'} selected`}
+            {t(selected.length === 1 ? 'preferences.selectedOne' : 'preferences.selectedMany', { count: selected.length })}
           </TextCustom>
           <Pressable onPress={() => setSelected([])} hitSlop={8}>
-            <TextCustom style={styles.reset}>Reset</TextCustom>
+            <TextCustom style={styles.reset}>{t('preferences.reset')}</TextCustom>
           </Pressable>
         </View>
         <PrimaryButton
-          title="Continue"
+          title={t('common.continue')}
           disabled={selected.length === 0}
           onPress={() => navigation.navigate('Welcome')}
         />

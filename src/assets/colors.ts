@@ -21,6 +21,7 @@ export const COLORS = {
   border: '#EADFD8',
   success: '#2E7D57',
   successSoft: '#DDF3E4',
+  error: '#C62828',
   mapPin: '#2F6F6B',
   white: '#FFFFFF',
   black: '#000000',
