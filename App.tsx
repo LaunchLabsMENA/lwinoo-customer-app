@@ -4,6 +4,8 @@ import { navigationRef } from './src/navigation/services';
 import { AppNavigator } from './src/navigation/app';
 import { COLORS } from './src/assets/colors';
 import { I18nProvider } from './src/i18n';
+import { SessionWatcher } from './src/navigation/session-watcher';
+import { AuthGateProvider } from './src/components/auth-gate';
 
 const navTheme: Theme = {
   ...DefaultTheme,
@@ -22,7 +24,10 @@ function App() {
     <I18nProvider>
       <SafeAreaProvider>
         <NavigationContainer ref={navigationRef} theme={navTheme}>
-          <AppNavigator />
+          <AuthGateProvider>
+            <SessionWatcher />
+            <AppNavigator />
+          </AuthGateProvider>
         </NavigationContainer>
       </SafeAreaProvider>
     </I18nProvider>

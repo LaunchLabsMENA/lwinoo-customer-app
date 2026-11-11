@@ -1,6 +1,7 @@
 import { FC, ReactNode } from 'react';
 import type { TranslationKey } from '../../../i18n';
-import { Image, ImageSourcePropType, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, ImageSourcePropType, Pressable, StyleSheet, View } from 'react-native';
+import { DirectionScroll } from '../../../components/direction-scroll';
 import { Plus, Star } from 'lucide-react-native';
 import { COLORS } from '../../../assets/colors';
 import { FONTS } from '../../../assets/fonts';
@@ -18,9 +19,7 @@ export const SectionHeader: FC<{ title: string; action?: string }> = ({ title, a
 };
 
 export const HScroll: FC<{ children: ReactNode }> = ({ children }) => (
-  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
-    {children}
-  </ScrollView>
+  <DirectionScroll contentContainerStyle={styles.hScroll}>{children}</DirectionScroll>
 );
 
 export const Price: FC<{ amount: number; size?: number }> = ({ amount, size = 15 }) => {
@@ -37,7 +36,7 @@ export const Price: FC<{ amount: number; size?: number }> = ({ amount, size = 15
 };
 
 export const SmallButton: FC<{ title: string; onPress?: () => void }> = ({ title, onPress }) => (
-  <Pressable style={styles.smallButton} onPress={onPress}>
+  <Pressable style={styles.smallButton} onPress={onPress} accessibilityRole="button">
     <TextCustom style={styles.smallButtonText}>{title}</TextCustom>
   </Pressable>
 );
@@ -55,10 +54,11 @@ type ServiceCardProps = {
   price: number;
   rating: string;
   image: ImageSourcePropType;
+  onAdd?: () => void;
 };
 
 // Two-up card used by "Spotlight Deals" and "Wellness and Spa".
-export const ServiceCard: FC<ServiceCardProps> = ({ title, subtitle, price, rating, image }) => {
+export const ServiceCard: FC<ServiceCardProps> = ({ title, subtitle, price, rating, image, onAdd }) => {
   const { t, row } = useI18n();
   return (
   <View style={styles.serviceCard}>
@@ -73,7 +73,7 @@ export const ServiceCard: FC<ServiceCardProps> = ({ title, subtitle, price, rati
       <TextCustom style={styles.cardSub} numberOfLines={2}>{t(subtitle)}</TextCustom>
       <View style={[styles.serviceFooter, { flexDirection: row }]}>
         <Price amount={price} />
-        <Pressable style={styles.plus}>
+        <Pressable style={styles.plus} onPress={onAdd} accessibilityRole="button" accessibilityLabel={t(title)}>
           <Plus size={16} color={COLORS.white} />
         </Pressable>
       </View>

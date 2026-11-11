@@ -22,7 +22,7 @@ export const COLORS = {
   success: '#2E7D57',
   successSoft: '#DDF3E4',
   error: '#C62828',
-  mapPin: '#2F6F6B',
+  mapPin: '#C48C93',
   white: '#FFFFFF',
   black: '#000000',
 };

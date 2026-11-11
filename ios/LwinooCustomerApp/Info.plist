@@ -35,6 +35,8 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>GMSApiKey</key>
+	<string>YOUR_GOOGLE_MAPS_API_KEY</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Lwinoo needs camera access so you can take photos for your profile and orders.</string>
 	<key>NSContactsUsageDescription</key>

@@ -1,10 +1,12 @@
 export type RootStackParamList = {
   Splash: undefined;
-  Login: undefined;
-  OtpVerification: { method: 'phone' | 'email'; target: string };
-  ProfileSetup: undefined;
-  MapPin: undefined;
-  Preferences: undefined;
+  Login: { mode?: 'login' | 'signup' } | undefined;
+  OtpVerification: { flow: 'login' | 'signup'; method: 'phone' | 'email'; target: string };
+  ProfileSetup: { mode?: 'edit' } | undefined;
+  Permissions: undefined;
+  MapPin: { mode?: 'onboarding' | 'add' | 'edit'; addressId?: string } | undefined;
+  Preferences: { mode?: 'edit' } | undefined;
+  Addresses: undefined;
   Welcome: undefined;
   Main: undefined;
 };

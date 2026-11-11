@@ -1,4 +1,4 @@
-import { ComponentRef, FC, useRef } from 'react';
+import { ComponentRef, FC, useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { COLORS } from '../../assets/colors';
 import { FONTS } from '../../assets/fonts';
@@ -8,20 +8,45 @@ type Props = {
   length?: number;
   value: string;
   onChange: (value: string) => void;
+  error?: boolean;
 };
 
 // A single hidden input drives the boxes, so paste and SMS autofill work.
-export const OtpInput: FC<Props> = ({ length = 4, value, onChange }) => {
+// Digits always read left to right, in Arabic too.
+export const OtpInput: FC<Props> = ({ length = 4, value, onChange, error }) => {
   const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
+  const [focused, setFocused] = useState(true);
 
   return (
-    <Pressable style={styles.row} onPress={() => inputRef.current?.focus()}>
+    <Pressable
+      style={styles.row}
+      onPress={() => inputRef.current?.focus()}
+      accessible
+      accessibilityLabel={`${value.length} / ${length}`}
+    >
       {Array.from({ length }, (_, i) => {
         const char = value[i];
-        const focused = i === value.length;
+        // The box the next digit goes into (the last one once the code is complete).
+        const current = focused && i === Math.min(value.length, length - 1);
         return (
-          <View key={i} style={[styles.box, (focused || char) && styles.boxActive]}>
-            <TextCustom style={char ? styles.digit : styles.dash}>{char ?? '-'}</TextCustom>
+          <View
+            key={i}
+            style={[
+              styles.box,
+              char ? styles.boxFilled : null,
+              current ? styles.boxCurrent : null,
+              error ? styles.boxError : null,
+            ]}
+          >
+            {char ? (
+              <TextCustom style={[styles.digit, error && styles.digitError]}>
+                {char}
+              </TextCustom>
+            ) : current ? (
+              <View style={styles.caret} />
+            ) : (
+              <View style={styles.dot} />
+            )}
           </View>
         );
       })}
@@ -29,11 +54,14 @@ export const OtpInput: FC<Props> = ({ length = 4, value, onChange }) => {
         ref={inputRef}
         value={value}
         onChangeText={t => onChange(t.replace(/\D/g, '').slice(0, length))}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         keyboardType="number-pad"
         textContentType="oneTimeCode"
         autoComplete="sms-otp"
         maxLength={length}
         autoFocus
+        caretHidden
         style={styles.hidden}
       />
     </Pressable>
@@ -43,29 +71,56 @@ export const OtpInput: FC<Props> = ({ length = 4, value, onChange }) => {
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
+    justifyContent: 'center',
+    gap: 14,
   },
   box: {
-    flex: 1,
-    height: 64,
-    borderRadius: 12,
+    width: 64,
+    height: 70,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: COLORS.border,
+    backgroundColor: COLORS.surface,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.white,
   },
-  boxActive: {
+  boxFilled: {
+    backgroundColor: COLORS.white,
     borderColor: COLORS.brand,
+  },
+  boxCurrent: {
+    borderWidth: 1.5,
+    borderColor: COLORS.brandDeep,
+    backgroundColor: COLORS.white,
+    shadowColor: COLORS.brandDeep,
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+  },
+  boxError: {
+    borderColor: COLORS.error,
+    backgroundColor: '#FDF1F1',
   },
   digit: {
     fontFamily: FONTS.semiBold,
-    fontSize: 22,
+    fontSize: 26,
+    color: COLORS.ink,
   },
-  dash: {
-    fontSize: 16,
-    color: COLORS.placeholder,
+  digitError: {
+    color: COLORS.error,
+  },
+  caret: {
+    width: 2,
+    height: 26,
+    borderRadius: 1,
+    backgroundColor: COLORS.brandDeep,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.border,
   },
   hidden: {
     position: 'absolute',

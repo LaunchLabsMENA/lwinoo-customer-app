@@ -7,6 +7,13 @@ import { COLORS } from '../../assets/colors';
 import { FONTS } from '../../assets/fonts';
 import { TextCustom } from '../react-native';
 import { useI18n, type TranslationKey } from '../../i18n';
+import { useAuthGate, type AuthGateAction } from '../auth-gate';
+
+// Tabs that hold personal data; guests get the sign-in prompt instead (Profile shows its own guest view).
+const GATED: Record<string, AuthGateAction> = {
+  Booking: 'bookings',
+  Saved: 'favourite',
+};
 
 const ICONS: Record<string, LucideIcon> = {
   Home: House,
@@ -20,6 +27,7 @@ const ICONS: Record<string, LucideIcon> = {
 export const BottomTabBar: FC<BottomTabBarProps> = ({ state, navigation }) => {
   const insets = useSafeAreaInsets();
   const { t, row } = useI18n();
+  const { requireAuth } = useAuthGate();
 
   return (
     <View style={[styles.wrap, { bottom: Math.max(insets.bottom, 12) }]}>
@@ -27,16 +35,26 @@ export const BottomTabBar: FC<BottomTabBarProps> = ({ state, navigation }) => {
         {state.routes.map((route, index) => {
           const focused = state.index === index;
           const Icon = ICONS[route.name] ?? House;
+          const label = t(`tabs.${route.name}` as TranslationKey);
           const onPress = () => {
+            const gate = GATED[route.name];
+            if (gate && !requireAuth(gate)) return;
             const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
             if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
           };
           return (
-            <Pressable key={route.key} onPress={onPress} style={styles.item}>
+            <Pressable
+              key={route.key}
+              onPress={onPress}
+              style={styles.item}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: focused }}
+              accessibilityLabel={label}
+            >
               <View style={[styles.iconWrap, focused && styles.iconWrapActive]}>
                 <Icon size={20} color={focused ? COLORS.white : COLORS.ink} strokeWidth={1.75} />
               </View>
-              <TextCustom style={[styles.label, focused && styles.labelActive]}>{t(`tabs.${route.name}` as TranslationKey)}</TextCustom>
+              <TextCustom style={[styles.label, focused && styles.labelActive]}>{label}</TextCustom>
             </Pressable>
           );
         })}

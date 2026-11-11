@@ -4,6 +4,7 @@ import {
   ImageBackground,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Pressable,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -22,6 +23,8 @@ import { HeadingText, TextCustom, useLocalizedTextStyle } from '../../../compone
 import { useI18n } from '../../../i18n';
 import { BrandGradient } from '../../../components/brand-gradient';
 import { HScroll, Price, SectionHeader, ServiceCard, SmallButton } from '../components';
+import { useAuthGate } from '../../../components/auth-gate';
+import { DirectionScroll } from '../../../components/direction-scroll';
 import {
   AVAILABLE_NOW,
   BANNERS,
@@ -42,12 +45,19 @@ export const HomeScreen: FC<Props> = () => {
   const bannerWidth = width - 40;
   const [bannerIndex, setBannerIndex] = useState(0);
   const { t, isRTL, row } = useI18n();
+  // Guests browse everything here; acting on it (book, cart, notifications) asks them to sign in.
+  const { requireAuth } = useAuthGate();
+  const onBook = () => requireAuth('book');
+  const onAddToCart = () => requireAuth('cart');
   const searchInputStyle = useLocalizedTextStyle(styles.searchInput);
   const StripChevron = isRTL ? ChevronLeft : ChevronRight;
   const rowDir = { flexDirection: row };
 
-  const onBannerScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) =>
-    setBannerIndex(Math.round(e.nativeEvent.contentOffset.x / (bannerWidth + 12)));
+  // In Arabic the first banner sits at the right end, so count pages from the right.
+  const onBannerScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const page = Math.round(e.nativeEvent.contentOffset.x / (bannerWidth + 12));
+    setBannerIndex(isRTL ? BANNERS.length - 1 - page : page);
+  };
 
   return (
     <View style={styles.container}>
@@ -74,12 +84,17 @@ export const HomeScreen: FC<Props> = () => {
               <ChevronDown size={12} color={COLORS.inkMuted} />
             </View>
           </View>
-          <View style={styles.bell}>
+          <Pressable
+            style={styles.bell}
+            onPress={() => requireAuth('notifications')}
+            accessibilityRole="button"
+            accessibilityLabel={t('guestGate.notifications')}
+          >
             <Bell size={18} color={COLORS.ink} />
             <View style={styles.bellBadge}>
               <TextCustom style={styles.bellBadgeText}>2</TextCustom>
             </View>
-          </View>
+          </Pressable>
         </View>
 
         {/* Register strip */}
@@ -98,9 +113,7 @@ export const HomeScreen: FC<Props> = () => {
         </View>
 
         {/* Hero banners */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
+        <DirectionScroll
           snapToInterval={bannerWidth + 12}
           decelerationRate="fast"
           contentContainerStyle={styles.bannerList}
@@ -116,8 +129,8 @@ export const HomeScreen: FC<Props> = () => {
               <TextCustom style={styles.bannerSub}>{t(b.subtitle)}</TextCustom>
             </ImageBackground>
           ))}
-        </ScrollView>
-        <View style={styles.dots}>
+        </DirectionScroll>
+        <View style={[styles.dots, rowDir]}>
           {BANNERS.map((b, i) => (
             <View key={b.id} style={[styles.dotItem, i === bannerIndex && styles.dotActive]} />
           ))}
@@ -152,7 +165,7 @@ export const HomeScreen: FC<Props> = () => {
                     <TextCustom style={styles.startingFrom}>{t('home.startingFrom')}</TextCustom>
                     <Price amount={a.price} size={16} />
                   </View>
-                  <SmallButton title={t('common.book')} />
+                  <SmallButton title={t('common.book')} onPress={onBook} />
                 </View>
               </View>
             </View>
@@ -162,7 +175,7 @@ export const HomeScreen: FC<Props> = () => {
         <SectionHeader title={t('home.section.spotlight')} action={t('common.viewAll')} />
         <HScroll>
           {SPOTLIGHT_DEALS.map(s => (
-            <ServiceCard key={s.id} {...s} />
+            <ServiceCard key={s.id} {...s} onAdd={onAddToCart} />
           ))}
         </HScroll>
 
@@ -184,7 +197,7 @@ export const HomeScreen: FC<Props> = () => {
                   <TextCustom style={styles.metaText}>{` ${t('home.stylist.meta', { rating: m.rating, price: m.from })}`}</TextCustom>
                 </View>
               </View>
-              <SmallButton title={t('common.book')} />
+              <SmallButton title={t('common.book')} onPress={onBook} />
             </View>
           ))}
         </View>
@@ -207,7 +220,7 @@ export const HomeScreen: FC<Props> = () => {
         <SectionHeader title={t('home.section.wellness')} action={t('common.viewAll')} />
         <HScroll>
           {WELLNESS.map(w => (
-            <ServiceCard key={w.id} {...w} />
+            <ServiceCard key={w.id} {...w} onAdd={onAddToCart} />
           ))}
         </HScroll>
 

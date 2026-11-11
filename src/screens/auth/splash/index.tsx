@@ -6,6 +6,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../../navigation/app/types';
 import { COLORS } from '../../../assets/colors';
 import { IMAGES } from '../../../assets/images';
+import { resolveStartRoute, type StartRoute } from '../../../navigation/bootstrap';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
 
@@ -22,12 +23,26 @@ type Mode = 'loading' | 'video' | 'logo';
 export const SplashScreen: FC<Props> = ({ navigation }) => {
   const done = useRef(false);
   const [mode, setMode] = useState<Mode>('loading');
+  const [route, setRoute] = useState<StartRoute | null>(null);
+  const [elapsed, setElapsed] = useState(false);
 
-  const finish = useCallback(() => {
-    if (done.current) return;
+  const finish = useCallback(() => setElapsed(true), []);
+
+  useEffect(() => {
+    let cancelled = false;
+    resolveStartRoute().then(next => {
+      if (!cancelled) setRoute(next);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!elapsed || !route || done.current) return;
     done.current = true;
-    navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
-  }, [navigation]);
+    navigation.reset({ index: 0, routes: [{ name: route }] });
+  }, [elapsed, route, navigation]);
 
   // Decide which splash to show.
   useEffect(() => {

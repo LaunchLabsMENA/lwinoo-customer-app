@@ -1,7 +1,8 @@
 import { FC, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CalendarDays, Camera, Info, Plus, Sparkles, Star, User } from 'lucide-react-native';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../../navigation/app/types';
 import { COLORS } from '../../../assets/colors';
@@ -12,32 +13,127 @@ import { StepProgress } from '../../../components/step-progress';
 import { FormInput, RequiredChip } from '../../../components/form-input';
 import { PrimaryButton } from '../../../components/primary-button';
 import { useI18n, type TranslationKey } from '../../../i18n';
+import { saveProfile, uploadAvatar } from '../../../api/customer';
+import { errorMessage } from '../../../api/errors';
+import { logout } from '../../../api/auth';
+import type { Title } from '../../../api/types';
+import { useSession } from '../../../store/session';
+import { formatDobInput, isoToDob, parseDob } from '../../../utils/date';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProfileSetup'>;
 
-const TITLES: TranslationKey[] = ['profileSetup.title.miss', 'profileSetup.title.mrs', 'profileSetup.title.dr'];
+const TITLES: { code: Title; key: TranslationKey }[] = [
+  { code: 'MISS', key: 'profileSetup.title.miss' },
+  { code: 'MRS', key: 'profileSetup.title.mrs' },
+  { code: 'DR', key: 'profileSetup.title.dr' },
+];
 
-export const ProfileSetupScreen: FC<Props> = ({ navigation }) => {
+const IMAGE_TYPES = ['image/jpeg', 'image/png'];
+
+type Photo = { uri: string; type: string };
+
+export const ProfileSetupScreen: FC<Props> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const { t, row } = useI18n();
-  const [name, setName] = useState('Noura Al-Rashidi');
-  const [title, setTitle] = useState(TITLES[0]);
-  const [dob, setDob] = useState('');
+  const editing = route.params?.mode === 'edit';
+  const existing = useSession(state => state.me?.profile ?? null);
+
+  const [name, setName] = useState(existing?.displayName ?? '');
+  const [title, setTitle] = useState<Title | null>(existing?.title ?? null);
+  const [dob, setDob] = useState(isoToDob(existing?.dateOfBirth));
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(existing?.avatarUrl ?? null);
+  const [photo, setPhoto] = useState<Photo | null>(null);
+  const [nameError, setNameError] = useState('');
+  const [dobError, setDobError] = useState('');
+  const [formError, setFormError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const shownPhoto = photo?.uri ?? avatarUrl;
+
+  const pick = async (source: 'camera' | 'library') => {
+    const launch = source === 'camera' ? launchCamera : launchImageLibrary;
+    const result = await launch({ mediaType: 'photo', quality: 0.8, maxWidth: 1024, maxHeight: 1024, selectionLimit: 1 });
+    const asset = result.assets?.[0];
+    if (asset?.uri) {
+      setPhoto({ uri: asset.uri, type: asset.type && IMAGE_TYPES.includes(asset.type) ? asset.type : 'image/jpeg' });
+    }
+  };
+
+  const onPhotoPress = () => {
+    const buttons = [
+      { text: t('profileSetup.photoCamera'), onPress: () => pick('camera') },
+      { text: t('profileSetup.photoLibrary'), onPress: () => pick('library') },
+      ...(shownPhoto
+        ? [
+            {
+              text: t('profileSetup.photoRemove'),
+              style: 'destructive' as const,
+              onPress: () => {
+                setPhoto(null);
+                setAvatarUrl(null);
+              },
+            },
+          ]
+        : []),
+      { text: t('common.cancel'), style: 'cancel' as const },
+    ];
+    Alert.alert(t('profileSetup.addPhoto'), undefined, buttons);
+  };
+
+  const onSubmit = async () => {
+    if (loading) return;
+    const trimmed = name.trim();
+    const parsed = parseDob(dob);
+    setNameError(trimmed.length < 2 ? t('profileSetup.nameRequired') : '');
+    setDobError(parsed.valid ? '' : t('profileSetup.invalidDob'));
+    setFormError('');
+    if (trimmed.length < 2 || !parsed.valid) return;
+
+    setLoading(true);
+    try {
+      const photoRemoved = !photo && !avatarUrl && !!existing?.avatarUrl;
+      const avatarFileId = photo ? await uploadAvatar(photo.uri, photo.type) : photoRemoved ? null : undefined;
+      await saveProfile({ fullName: trimmed, title, dateOfBirth: parsed.iso, avatarFileId });
+      if (editing) navigation.goBack();
+      else navigation.navigate('Permissions');
+    } catch (failure) {
+      setFormError(errorMessage(failure, t));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Onboarding starts a fresh stack after OTP, so there is no screen behind this one.
+  // Going back then means leaving setup: confirm, sign out, and the session watcher returns to Login.
+  const onBack = () => {
+    if (navigation.canGoBack()) return navigation.goBack();
+    Alert.alert(t('account.logoutTitle'), t('account.logoutBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('account.logout'), style: 'destructive', onPress: () => logout() },
+    ]);
+  };
 
   return (
     <KeyboardAvoidingView
       style={[styles.container, { paddingTop: insets.top }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScreenHeader title={t('profileSetup.header')} onBack={navigation.goBack} />
-      <StepProgress step={2} total={4} label={t('step.location')} />
+      <ScreenHeader
+        title={t(editing ? 'profileSetup.editHeader' : 'profileSetup.header')}
+        onBack={onBack}
+      />
+      {editing ? null : <StepProgress step={2} total={4} label={t('step.location')} />}
 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <HeadingText style={styles.heading}>{t('profileSetup.heading')}</HeadingText>
+        {editing ? null : <HeadingText style={styles.heading}>{t('profileSetup.heading')}</HeadingText>}
 
         <View style={styles.photoWrap}>
-          <Pressable style={styles.photo}>
-            <Camera size={26} color={COLORS.inkMuted} strokeWidth={1.5} />
+          <Pressable style={styles.photo} onPress={onPhotoPress} accessibilityRole="button" accessibilityLabel={t('profileSetup.addPhoto')}>
+            {shownPhoto ? (
+              <Image source={{ uri: shownPhoto }} style={styles.photoImage} />
+            ) : (
+              <Camera size={26} color={COLORS.inkMuted} strokeWidth={1.5} />
+            )}
             <View style={styles.photoBadge}>
               <Plus size={14} color={COLORS.white} />
             </View>
@@ -53,18 +149,27 @@ export const ProfileSetupScreen: FC<Props> = ({ navigation }) => {
           uppercaseLabel
           labelRight={<RequiredChip />}
           value={name}
-          onChangeText={setName}
+          onChangeText={text => {
+            setName(text);
+            setNameError('');
+          }}
           placeholder={t('profileSetup.namePlaceholder')}
+          maxLength={60}
+          error={nameError}
           left={<User size={18} color={COLORS.brand} />}
         />
 
         <TextCustom style={styles.sectionLabel}>{t('profileSetup.preferredTitle')}</TextCustom>
         <View style={[styles.titles, { flexDirection: row }]}>
-          {TITLES.map(key => {
-            const active = key === title;
+          {TITLES.map(option => {
+            const active = option.code === title;
             return (
-              <Pressable key={key} onPress={() => setTitle(key)} style={[styles.titleChip, active && styles.titleChipActive]}>
-                <TextCustom style={[styles.titleText, active && styles.titleTextActive]}>{t(key)}</TextCustom>
+              <Pressable
+                key={option.code}
+                onPress={() => setTitle(active ? null : option.code)}
+                style={[styles.titleChip, active && styles.titleChipActive]}
+              >
+                <TextCustom style={[styles.titleText, active && styles.titleTextActive]}>{t(option.key)}</TextCustom>
               </Pressable>
             );
           })}
@@ -81,9 +186,15 @@ export const ProfileSetupScreen: FC<Props> = ({ navigation }) => {
             </View>
           }
           value={dob}
-          onChangeText={setDob}
+          onChangeText={text => {
+            setDob(formatDobInput(text));
+            setDobError('');
+          }}
           placeholder={t('profileSetup.dobPlaceholder')}
           keyboardType="number-pad"
+          maxLength={14}
+          error={dobError}
+          ltr
           left={<CalendarDays size={18} color={COLORS.brand} />}
         />
 
@@ -96,10 +207,17 @@ export const ProfileSetupScreen: FC<Props> = ({ navigation }) => {
           <Info size={13} color={COLORS.brandDeep} />
           <TextCustom style={styles.noteText}>{t('profileSetup.confidential')}</TextCustom>
         </View>
+
+        {formError ? <TextCustom style={styles.formError}>{formError}</TextCustom> : null}
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
-        <PrimaryButton title={t('common.continue')} disabled={!name.trim()} onPress={() => navigation.navigate('MapPin')} />
+        <PrimaryButton
+          title={editing ? t('profileSetup.save') : t('common.continue')}
+          disabled={!name.trim()}
+          loading={loading}
+          onPress={onSubmit}
+        />
       </View>
     </KeyboardAvoidingView>
   );
@@ -133,6 +251,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  photoImage: {
+    width: 93,
+    height: 93,
+    borderRadius: 47,
   },
   photoBadge: {
     position: 'absolute',
@@ -188,6 +311,12 @@ const styles = StyleSheet.create({
   titleTextActive: {
     fontFamily: FONTS.medium,
     color: COLORS.white,
+  },
+  formError: {
+    marginTop: 16,
+    textAlign: 'center',
+    fontSize: 12,
+    color: COLORS.error,
   },
   dob: {
     marginTop: 20,

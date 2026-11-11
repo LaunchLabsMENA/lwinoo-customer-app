@@ -10,12 +10,15 @@ import { HeadingText, TextCustom } from '../../../components/react-native';
 import { BrandGradient } from '../../../components/brand-gradient';
 import { PrimaryButton } from '../../../components/primary-button';
 import { useI18n } from '../../../i18n';
+import { useSession } from '../../../store/session';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Welcome'>;
 
 export const WelcomeScreen: FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { t, row } = useI18n();
+  const fullName = useSession(state => state.me?.profile?.displayName ?? '');
+  const firstName = fullName.split(' ')[0] ?? '';
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 24 }]}>
@@ -27,7 +30,7 @@ export const WelcomeScreen: FC<Props> = ({ navigation }) => {
         <View style={styles.checkCircle}>
           <Check size={56} color={COLORS.white} strokeWidth={3} />
         </View>
-        <HeadingText style={styles.title}>{t('welcome.title', { name: 'Sara' })}</HeadingText>
+        <HeadingText style={styles.title}>{t('welcome.title', { name: firstName })}</HeadingText>
         <TextCustom style={styles.body}>{t('welcome.body')}</TextCustom>
       </View>
 
@@ -35,7 +38,7 @@ export const WelcomeScreen: FC<Props> = ({ navigation }) => {
         <View style={[styles.cardHeader, { flexDirection: row }]}>
           <View>
             <TextCustom style={styles.prive}>LWINOO PRIVÉ</TextCustom>
-            <HeadingText style={styles.member}>Sara Al-Otaibi</HeadingText>
+            <HeadingText style={styles.member}>{fullName}</HeadingText>
           </View>
           <View style={styles.tier}>
             <TextCustom style={styles.tierText}>{t('welcome.tier')}</TextCustom>

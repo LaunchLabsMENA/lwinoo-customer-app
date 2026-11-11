@@ -1,5 +1,5 @@
-import { FC, useState } from 'react';
-import { FlatList, Image, Pressable, StyleSheet, View } from 'react-native';
+import { FC, useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Check } from 'lucide-react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -11,39 +11,83 @@ import { ScreenHeader } from '../../../components/screen-header';
 import { StepProgress } from '../../../components/step-progress';
 import { PrimaryButton } from '../../../components/primary-button';
 import { useI18n } from '../../../i18n';
-import { CATEGORIES, PreferenceCategory } from './data';
+import { completeOnboarding, getCategories, getSelectedCategories, saveSelectedCategories } from '../../../api/customer';
+import { errorMessage } from '../../../api/errors';
+import type { Category } from '../../../api/types';
+import { CATEGORY_IMAGES } from './data';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Preferences'>;
 
 const Separator = () => <View style={styles.separator} />;
 
-export const PreferencesScreen: FC<Props> = ({ navigation }) => {
+export const PreferencesScreen: FC<Props> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
-  const { t, row } = useI18n();
-  const [selected, setSelected] = useState<string[]>(['hair', 'makeup', 'nails']);
+  const { t, row, locale } = useI18n();
+  const editing = route.params?.mode === 'edit';
+  const [categories, setCategories] = useState<Category[] | null>(null);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const load = useCallback(async () => {
+    setError('');
+    try {
+      const [list, ids] = await Promise.all([getCategories(), editing ? getSelectedCategories() : []]);
+      setSelected(ids);
+      setCategories(list);
+    } catch (failure) {
+      setError(errorMessage(failure, t));
+    }
+  }, [editing, t]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const onContinue = async () => {
+    if (saving) return;
+    setSaving(true);
+    setError('');
+    try {
+      await saveSelectedCategories(selected);
+      if (editing) {
+        navigation.goBack();
+      } else {
+        await completeOnboarding();
+        navigation.navigate('Welcome');
+      }
+    } catch (failure) {
+      setError(errorMessage(failure, t));
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const toggle = (id: string) =>
     setSelected(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]));
 
-  const renderItem = ({ item }: { item: PreferenceCategory }) => {
+  const arabic = locale === 'ar';
+
+  const renderItem = ({ item }: { item: Category }) => {
     const active = selected.includes(item.id);
+    const description = arabic ? item.descriptionAr ?? item.descriptionEn : item.descriptionEn;
     return (
       <Pressable onPress={() => toggle(item.id)} style={[styles.card, { flexDirection: row }, active && styles.cardActive]}>
-        <Image source={item.image} style={styles.image} />
+        <Image source={item.imageUrl ? { uri: item.imageUrl } : CATEGORY_IMAGES[item.slug]} style={styles.image} />
         <View style={styles.body}>
           <View style={[styles.titleRow, { flexDirection: row }]}>
-            <TextCustom style={styles.title}>{t(item.title)}</TextCustom>
-            {item.topPick ? (
+            <TextCustom style={styles.title}>{arabic ? item.nameAr ?? item.nameEn : item.nameEn}</TextCustom>
+            {item.isTopPick ? (
               <View style={styles.topPick}>
                 <TextCustom style={styles.topPickText}>{t('preferences.topPick')}</TextCustom>
               </View>
             ) : null}
           </View>
-          <TextCustom style={styles.subtitle}>{t(item.subtitle)}</TextCustom>
+          {description ? <TextCustom style={styles.subtitle}>{description}</TextCustom> : null}
           <View style={[styles.tags, { flexDirection: row }]}>
-            {item.tags.map(tag => (
-              <View key={tag} style={styles.tag}>
-                <TextCustom style={styles.tagText}>{t(tag)}</TextCustom>
+            {item.subcategories.slice(0, 3).map(tag => (
+              <View key={tag.id} style={styles.tag}>
+                <TextCustom style={styles.tagText}>{arabic ? tag.nameAr ?? tag.nameEn : tag.nameEn}</TextCustom>
               </View>
             ))}
           </View>
@@ -57,17 +101,29 @@ export const PreferencesScreen: FC<Props> = ({ navigation }) => {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <ScreenHeader title={t('preferences.header')} onBack={navigation.goBack} />
-      <StepProgress step={4} total={4} label={t('step.location')} />
+      <ScreenHeader title={t('preferences.header')} onBack={navigation.canGoBack() ? navigation.goBack : undefined} />
+      {editing ? null : <StepProgress step={4} total={4} label={t('step.location')} />}
 
-      <FlatList
-        data={CATEGORIES}
-        keyExtractor={c => c.id}
-        renderItem={renderItem}
-        ListHeaderComponent={<HeadingText style={styles.heading}>{t('preferences.heading')}</HeadingText>}
-        contentContainerStyle={styles.list}
-        ItemSeparatorComponent={Separator}
-      />
+      {categories ? (
+        <FlatList
+          data={categories}
+          keyExtractor={c => c.id}
+          renderItem={renderItem}
+          ListHeaderComponent={<HeadingText style={styles.heading}>{t('preferences.heading')}</HeadingText>}
+          contentContainerStyle={styles.list}
+          ItemSeparatorComponent={Separator}
+        />
+      ) : (
+        <View style={styles.center}>
+          {error ? (
+            <Pressable onPress={load} hitSlop={8}>
+              <TextCustom style={styles.reset}>{t('common.retry')}</TextCustom>
+            </Pressable>
+          ) : (
+            <ActivityIndicator color={COLORS.brand} />
+          )}
+        </View>
+      )}
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
         <View style={[styles.summary, { flexDirection: row }]}>
@@ -79,10 +135,12 @@ export const PreferencesScreen: FC<Props> = ({ navigation }) => {
             <TextCustom style={styles.reset}>{t('preferences.reset')}</TextCustom>
           </Pressable>
         </View>
+        {error ? <TextCustom style={styles.error}>{error}</TextCustom> : null}
         <PrimaryButton
-          title={t('common.continue')}
+          title={t(editing ? 'preferences.save' : 'common.continue')}
           disabled={selected.length === 0}
-          onPress={() => navigation.navigate('Welcome')}
+          loading={saving}
+          onPress={onContinue}
         />
       </View>
     </View>
@@ -93,6 +151,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   heading: {
     fontSize: 30,
@@ -206,5 +269,11 @@ const styles = StyleSheet.create({
   },
   reset: {
     color: COLORS.inkMuted,
+  },
+  error: {
+    marginBottom: 10,
+    textAlign: 'center',
+    fontSize: 12,
+    color: COLORS.error,
   },
 });
