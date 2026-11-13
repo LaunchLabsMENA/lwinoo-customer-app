@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { CalendarDays, Heart, House, LucideIcon, SquarePlay, User } from 'lucide-react-native';
+import { CalendarDays, House, LucideIcon, ShoppingBag, SquarePlay, User } from 'lucide-react-native';
 import { COLORS } from '../../assets/colors';
 import { FONTS } from '../../assets/fonts';
 import { TextCustom } from '../react-native';
@@ -12,14 +12,13 @@ import { useAuthGate, type AuthGateAction } from '../auth-gate';
 // Tabs that hold personal data; guests get the sign-in prompt instead (Profile shows its own guest view).
 const GATED: Record<string, AuthGateAction> = {
   Booking: 'bookings',
-  Saved: 'favourite',
 };
 
 const ICONS: Record<string, LucideIcon> = {
   Home: House,
   Booking: CalendarDays,
+  Fashion: ShoppingBag,
   Reels: SquarePlay,
-  Saved: Heart,
   Profile: User,
 };
 

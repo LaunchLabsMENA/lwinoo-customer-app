@@ -1,3 +1,6 @@
+import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { PaymentId } from '../../screens/fashion/data';
+
 export type RootStackParamList = {
   Splash: undefined;
   Login: { mode?: 'login' | 'signup' } | undefined;
@@ -8,13 +11,26 @@ export type RootStackParamList = {
   Preferences: { mode?: 'edit' } | undefined;
   Addresses: undefined;
   Welcome: undefined;
-  Main: undefined;
+  Main: NavigatorScreenParams<MainTabParamList> | undefined;
+  FashionCollection: { collectionId: string };
+  FashionAtelier: { atelierId: string };
+  FashionProduct: { productId: string };
+  FashionCheckout: { productId: string; size: string; toneId?: string };
+  FashionOrderConfirmed: {
+    productId: string;
+    size: string;
+    toneId?: string;
+    total: number;
+    deliveryId: string;
+    paymentId: PaymentId;
+    orderNo: string;
+  };
 };
 
 export type MainTabParamList = {
   Home: undefined;
   Booking: undefined;
+  Fashion: undefined;
   Reels: undefined;
-  Saved: undefined;
   Profile: undefined;
 };
