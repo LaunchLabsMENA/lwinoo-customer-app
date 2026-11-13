@@ -195,12 +195,14 @@ export const MapPinScreen: FC<Props> = ({ navigation, route }) => {
     if (saving) return;
     setSaving(true);
     setError('');
+    // If the lookup for this spot hasn't finished, save the coordinates rather than a stale address.
+    const address = resolving ? null : resolved;
     const payload = {
-      formattedAddress: resolved?.text ?? plain(center),
+      formattedAddress: address?.text ?? plain(center),
       latitude: center.latitude,
       longitude: center.longitude,
-      city: resolved?.city ?? undefined,
-      placeId: resolved?.placeId ?? undefined,
+      city: address?.city ?? undefined,
+      placeId: address?.placeId ?? undefined,
       label,
     };
     try {
@@ -239,7 +241,17 @@ export const MapPinScreen: FC<Props> = ({ navigation, route }) => {
             initialRegion={initial}
             showsUserLocation={locationGranted}
             showsMyLocationButton={false}
-            onRegionChangeComplete={region => setCenter({ latitude: region.latitude, longitude: region.longitude })}
+            onRegionChangeComplete={region =>
+              // Ignore sub-pixel jitter (Apple Maps re-reports the region on resize/settle), which
+              // would otherwise restart the address lookup in a loop.
+              setCenter(previous => {
+                const threshold = region.latitudeDelta * 0.01;
+                const moved =
+                  Math.abs(previous.latitude - region.latitude) > threshold ||
+                  Math.abs(previous.longitude - region.longitude) > threshold;
+                return moved ? { latitude: region.latitude, longitude: region.longitude } : previous;
+              })
+            }
           />
         ) : (
           <View style={styles.loading}>
@@ -343,7 +355,6 @@ export const MapPinScreen: FC<Props> = ({ navigation, route }) => {
           title={t(onboarding ? 'common.continue' : 'mapPin.saveAddress')}
           onPress={onSave}
           loading={saving}
-          disabled={resolving}
         />
       </View>
     </KeyboardAvoidingView>
@@ -477,9 +488,10 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.semiBold,
     fontSize: 16,
   },
+  // Fixed height (two lines) so the sheet never resizes the map while the address loads.
   addressRow: {
     flexDirection: 'row',
-    minHeight: 38,
+    height: 56,
   },
   address: {
     flex: 1,

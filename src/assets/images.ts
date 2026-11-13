@@ -22,4 +22,17 @@ export const IMAGES = {
   glam: unsplash('1515377905703-c4788e51af15'),
   wellness: unsplash('1600334129128-685c5582fd35'),
   hairTool: unsplash('1583001931096-959e9a1a6223'),
+  // Fashion / boutique
+  fashionWhiteFlow: unsplash('1583391733956-3750e0ff4e8b', 900),
+  fashionHijabCoat: unsplash('1539109136881-3be0616acf4b', 900),
+  fashionDarkCoat: unsplash('1485968579580-b6d095142e6e', 900),
+  fashionRack: unsplash('1490481651871-ab68de25d43d'),
+  fashionRack2: unsplash('1558769132-cb1aea458c5e'),
+  fashionGreenGown: unsplash('1609357605129-26f69add5d6e', 900),
+  fashionFloralGown: unsplash('1622122201714-77da0ca8e5d2', 900),
+  fashionIvory: unsplash('1611042553365-9b101441c135', 900),
+  fashionBlackCoat: unsplash('1554412933-514a83d2f3c8', 900),
+  fashionCamelCoat: unsplash('1618244972963-dbee1a7edc95', 900),
+  fashionSilk: unsplash('1544957992-20514f595d6f', 900),
+  fashionAtelier: unsplash('1600091166971-7f9faad6c1e2'),
 };
